@@ -53,6 +53,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
+
 import org.apache.logging.log4j.CloseableThreadContext;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.ThreadContext;
@@ -357,7 +358,6 @@ public abstract class NettyStorageDriverBase<I extends Item, O extends Operation
 	}
 
 	@Override
-	@SuppressWarnings("unchecked")
 	protected int submit(final List<O> ops, final int from, final int to)
 					throws IllegalStateException {
 
@@ -577,6 +577,9 @@ public abstract class NettyStorageDriverBase<I extends Item, O extends Operation
 
 	@Override
 	public void complete(final Channel channel, final O op) {
+		if (op.isComplete()) {
+			return;
+		}
 
 		ThreadContext.put(KEY_CLASS_NAME, CLS_NAME);
 		ThreadContext.put(KEY_STEP_ID, stepId);
@@ -590,6 +593,7 @@ public abstract class NettyStorageDriverBase<I extends Item, O extends Operation
 		if (channel != null) {
 			connPool.release(channel);
 		}
+
 		handleCompleted(op);
 	}
 
