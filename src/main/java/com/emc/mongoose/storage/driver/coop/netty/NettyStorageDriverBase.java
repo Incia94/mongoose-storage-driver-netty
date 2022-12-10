@@ -21,6 +21,7 @@ import com.emc.mongoose.base.logging.LogUtil;
 import com.emc.mongoose.base.logging.Loggers;
 import com.emc.mongoose.storage.driver.coop.CoopStorageDriverBase;
 import com.emc.mongoose.storage.driver.coop.netty.data.DataItemFileRegion;
+import com.emc.mongoose.storage.driver.coop.netty.data.PartialChunkedNioStream;
 import com.emc.mongoose.storage.driver.coop.netty.data.SeekableByteChannelChunkedNioStream;
 import com.github.akurilov.commons.collection.Range;
 import com.github.akurilov.commons.concurrent.ThreadUtil;
@@ -453,7 +454,7 @@ public abstract class NettyStorageDriverBase<I extends Item, O extends Operation
 					final var srcPath = dataOp.srcPath();
 					if (0 < dataItem.size() && (null == srcPath || srcPath.isEmpty())) {
 						if (sslFlag) {
-							channel.write(new SeekableByteChannelChunkedNioStream(dataItem));
+							channel.write(new PartialChunkedNioStream(dataItem));
 						} else {
 							channel.write(new DataItemFileRegion(dataItem));
 						}
