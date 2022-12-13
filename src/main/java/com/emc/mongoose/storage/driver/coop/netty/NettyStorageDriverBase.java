@@ -14,6 +14,7 @@ import com.emc.mongoose.base.item.DataItem;
 import com.emc.mongoose.base.item.Item;
 import com.emc.mongoose.base.item.op.OpType;
 import com.emc.mongoose.base.item.op.Operation;
+import com.emc.mongoose.base.item.op.Operation.Status;
 import com.emc.mongoose.base.item.op.composite.data.CompositeDataOperation;
 import com.emc.mongoose.base.item.op.data.DataOperation;
 import com.emc.mongoose.base.logging.LogContextThreadFactory;
@@ -586,7 +587,7 @@ public abstract class NettyStorageDriverBase<I extends Item, O extends Operation
 		} catch (final IllegalStateException e) {
 			LogUtil.exception(Level.DEBUG, e, "{}: invalid load operation state", op.toString());
 		}
-		if (!op.isPermitReleased()) {
+		if (!Status.isFailure(op.status()) || !op.isPermitReleased()) {
 			concurrencyThrottle.release();
 		}
 		if (channel != null) {
