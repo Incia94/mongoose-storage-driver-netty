@@ -578,10 +578,6 @@ public abstract class NettyStorageDriverBase<I extends Item, O extends Operation
 
 	@Override
 	public void complete(final Channel channel, final O op) {
-		if (op.isComplete()) {
-			return;
-		}
-
 		ThreadContext.put(KEY_CLASS_NAME, CLS_NAME);
 		ThreadContext.put(KEY_STEP_ID, stepId);
 
@@ -590,7 +586,9 @@ public abstract class NettyStorageDriverBase<I extends Item, O extends Operation
 		} catch (final IllegalStateException e) {
 			LogUtil.exception(Level.DEBUG, e, "{}: invalid load operation state", op.toString());
 		}
-		concurrencyThrottle.release();
+		if (!op.isPermitReleased()) {
+			concurrencyThrottle.release();
+		}
 		if (channel != null) {
 			connPool.release(channel);
 		}
